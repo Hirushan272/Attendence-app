@@ -1,8 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:attendance_app/models/report.dart';
+import 'package:attendance_app/service/excel_service.dart';
+import 'package:attendance_app/widgets/alerts.dart';
+import 'package:external_path/external_path.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as excel;
 import 'package:url_launcher/url_launcher.dart';
 
 class LogModel {
@@ -54,23 +62,31 @@ class LogModel {
 }
 
 class LogData {
+  String? time;
   String? date;
+  String? user;
   List<LogModel?>? logList;
   LogData({
+    this.time,
     this.date,
+    this.user,
     this.logList,
   });
 
   Map<String, dynamic> toMap() {
     return {
+      'time': time,
       'date': date,
+      'user': user,
       'logList': logList?.map((x) => x?.toMap()).toList(),
     };
   }
 
   factory LogData.fromMap(Map<String, dynamic> map) {
     return LogData(
+      time: map['time'],
       date: map['date'],
+      user: map['user'],
       logList: map['logList'] != null
           ? List<LogModel?>.from(
               map['logList']?.map((x) => LogModel?.fromMap(x)))
@@ -88,7 +104,8 @@ class ReportData extends StatefulWidget {
   static const routeName = "/report-page";
   final MonthlyReport? monthlyReport;
   final LogData? logData;
-  const ReportData({Key? key, this.monthlyReport, this.logData})
+  final String? empId;
+  const ReportData({Key? key, this.monthlyReport, this.logData, this.empId})
       : super(key: key);
 
   @override
@@ -97,7 +114,7 @@ class ReportData extends StatefulWidget {
 
 class _ReportDataState extends State<ReportData> {
   List<LogModel?>? logList = [];
-
+  excel.Workbook workbook = excel.Workbook();
   static Future<void> openMap(double? latitude, double? longitude) async {
     String googleUrl =
         'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
@@ -117,12 +134,38 @@ class _ReportDataState extends State<ReportData> {
     print(placemark[0]?.administrativeArea);
   }
 
+  Directory? rootPath;
+  String? dirPath;
+  Future<void> _pickDir(BuildContext context) async {
+    String root = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_DOCUMENTS);
+
+    rootPath = Directory(root);
+    await Directory("$root/Excel").create();
+    String? path = await FilesystemPicker.open(
+      title: 'Save to folder',
+      context: context,
+      rootDirectory: rootPath!,
+      fsType: FilesystemType.folder,
+      pickText: 'Save file to this folder',
+      folderIconColor: Colors.teal,
+      requestPermission: () async =>
+          await Permission.storage.request().isGranted,
+    );
+
+    setState(() {
+      dirPath = path;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     logList = widget.logData?.logList;
     print(logList?.length);
   }
+
+  final ExcelService excelService = ExcelService();
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +174,8 @@ class _ReportDataState extends State<ReportData> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
+        title: Text(widget.empId.toString()),
         automaticallyImplyLeading: false,
         actions: [
           GestureDetector(
@@ -147,7 +192,7 @@ class _ReportDataState extends State<ReportData> {
         padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               height: 80,
               width: size.width,
               // color: Colors.green,
@@ -230,7 +275,7 @@ class _ReportDataState extends State<ReportData> {
               ),
             ),
             const SizedBox(height: 10),
-            Container(
+            SizedBox(
               height: size.height * 0.6,
               child: ListView.builder(
                   itemCount: logList?.length,
@@ -275,6 +320,29 @@ class _ReportDataState extends State<ReportData> {
                   }),
             ),
           ],
+        ),
+      ),
+      bottomSheet: SizedBox(
+        height: 50,
+        child: Center(
+          child: SizedBox(
+            width: 200,
+            height: 40,
+            child: ElevatedButton(
+                style:
+                    ElevatedButton.styleFrom(primary: const Color(0xff145486)),
+                onPressed: () async {
+                  List<excel.Style> styles = [];
+                  styles = excelService.createStyles(workbook);
+                  await _pickDir(context);
+                  String? val = await excelService.addAssetsSheet(
+                      workbook, styles, logList, dirPath);
+                  if (val == "ok") {
+                    successDialog(context, "Excel file created.");
+                  }
+                },
+                child: const Text("Create Excel")),
+          ),
         ),
       ),
     );

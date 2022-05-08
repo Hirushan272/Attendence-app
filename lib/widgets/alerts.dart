@@ -1,4 +1,7 @@
+import 'package:attendance_app/constant/constant.dart';
+import 'package:attendance_app/pages/Home/cancel_leave.dart';
 import 'package:attendance_app/service/location_servise.dart';
+import 'package:attendance_app/widgets/small_button.dart';
 import 'package:flutter/material.dart';
 
 displayDialog(BuildContext context, String message) async {
@@ -127,6 +130,52 @@ successDialog(BuildContext context, String? message) async {
                       Navigator.of(newContext).pop();
                     },
                   ),
+                )
+              ],
+            ),
+          ),
+        );
+      });
+}
+
+cancelLeaveAlert(BuildContext context, String message, Size size) async {
+  return showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: SizedBox(
+            height: size.height * 0.24,
+            width: size.width * 0.7,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // const Text('WARNING',
+                //     style:
+                //         TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                const Icon(Icons.cancel_outlined, color: Colors.red, size: 60),
+                const SizedBox(height: 10),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    smallButton(size, "Yes", blueColor, onClick: () {
+                      Navigator.of(context).pop();
+                    }),
+                    smallButton(size, "No", redColor, onClick: () {
+                      Navigator.of(context).pop();
+                    }),
+                  ],
                 )
               ],
             ),

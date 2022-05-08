@@ -1,8 +1,7 @@
 import 'dart:convert' as convert;
 import 'dart:convert';
-
 import 'package:attendance_app/models/attendance.dart';
-import 'package:attendance_app/models/employee.dart';
+import 'package:attendance_app/models/user.dart';
 import 'package:attendance_app/service/auth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -19,7 +18,8 @@ class AttendanceResponse {
 class AttendanceService {
   Future<AttendanceResponse?> attendance(
       Attendance attendance, String? token) async {
-    var url = Uri.parse("http://157.230.47.27:3000/apiv1.0/attendance");
+    var url =
+        Uri.parse("https://attendace-api.herokuapp.com/apiv1.0/attendance");
 
     AttendanceResponse res = AttendanceResponse();
     print(userToken);
@@ -40,11 +40,12 @@ class AttendanceService {
       print("Error");
     });
     res.statusCode = response.statusCode.toString();
-
+    print("Attendence 2 ${attendance.toMap()}");
     if (response.statusCode == 200) {
       var jsonResponse = response.body.toString();
       // User user = User.fromMap(jsonResponse["user"]);
       res.messages = jsonResponse;
+      print(res.messages);
 
       return res;
     } else {

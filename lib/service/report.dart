@@ -3,7 +3,7 @@ import 'dart:convert' as convert;
 import 'dart:convert';
 
 import 'package:attendance_app/models/attendance.dart';
-import 'package:attendance_app/models/employee.dart';
+import 'package:attendance_app/models/user.dart';
 import 'package:attendance_app/pages/Home/report_data.dart';
 import 'package:attendance_app/service/auth_service.dart';
 import 'package:geocoding/geocoding.dart';
@@ -21,17 +21,26 @@ Future<MonthlyReport?> getReport(
   String getDate() {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat("yyyy-MM-dd").format(now);
-    String finalDate = "$formattedDate 8:30:00.000";
+    String finalDate = formattedDate;
     return finalDate;
   }
 
+  print("test 4");
   MonthlyReport mtr = MonthlyReport();
-  var url1 =
-      Uri.parse("http://157.230.47.27:3000/apiv1.0/attendance/daily-summary");
-  var url2 =
-      Uri.parse("http://157.230.47.27:3000/apiv1.0/attendance/monthly-summary");
+  var url1 = Uri.parse(
+      "https://attendace-api.herokuapp.com/apiv1.0/attendance/daily-summary");
 
-  print(userToken);
+  final queryParams = {
+    "emp_no": empNo.toString(),
+    "date": getDate(),
+    "month": month.toString(),
+    "year": year.toString()
+  };
+
+  var url2 = Uri.https("attendace-api.herokuapp.com",
+      "/apiv1.0/attendance/monthly-summary", queryParams);
+
+  print("PASSWORD $userToken");
   String? message;
   Response response1 = await http
       .put(url1,
@@ -48,20 +57,20 @@ Future<MonthlyReport?> getReport(
       .catchError((error) {
     print("Error");
   });
-
-  Response response2 = await http
-      .put(url2,
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8',
-            "Authorization": "bearer $userToken",
-          },
-          body: jsonEncode({
-            "emp_no": empNo,
-            "date": getDate(),
-            "month": month,
-            "year": year
-          }))
-      .catchError((error) {
+  print("test 5");
+  Response response2 = await http.get(
+    url2,
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+      "Authorization": "bearer $userToken",
+    },
+    // body: jsonEncode({
+    //   "emp_no": empNo,
+    //   "date": getDate(),
+    //   "month": month,
+    //   "year": year
+    // })
+  ).catchError((error) {
     print("Error");
   });
   // res.statusCode = response.statusCode.toString();
@@ -104,7 +113,7 @@ Future<LogData?>? getLog(String? empNo) async {
   LogData logData = LogData();
   List<LogModel> logList = [];
   var url = Uri.parse(
-    "http://157.230.47.27:3000/apiv1.0/attendance/$empNo",
+    "https://attendace-api.herokuapp.com/apiv1.0/attendance/$empNo",
   );
 
   http.Response response = await http.get(
@@ -117,7 +126,7 @@ Future<LogData?>? getLog(String? empNo) async {
 
   if (response.statusCode == 200) {
     var jsonResponse = convert.jsonDecode(response.body);
-
+    print(jsonResponse);
     logData.date = jsonResponse["date"].toString().substring(0, 10);
     var data = jsonResponse["fprints"] as List<dynamic>;
     for (var e in data) {
@@ -127,6 +136,7 @@ Future<LogData?>? getLog(String? empNo) async {
       logModel.lat = e["location"]["lat"];
       logModel.long = e["location"]["long"];
       logModel.place = await getPlaceMark(logModel.lat, logModel.long);
+      logModel.date = logData.date;
       logList.add(logModel);
     }
     logData.logList = logList;
