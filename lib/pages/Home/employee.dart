@@ -16,7 +16,8 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 class EmployeePage extends StatefulWidget {
   static const routeName = "/employee";
-  const EmployeePage({Key? key}) : super(key: key);
+  final String? status;
+  const EmployeePage({Key? key, this.status}) : super(key: key);
 
   @override
   State<EmployeePage> createState() => _EmployeePageState();
@@ -65,7 +66,7 @@ class _EmployeePageState extends State<EmployeePage> {
   String getDate() {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat("yyyy-MM-dd").format(now);
-    String finalDate = "$formattedDate 8:30:00.000";
+    String finalDate = formattedDate;
     return finalDate;
   }
 

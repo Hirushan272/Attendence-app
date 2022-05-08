@@ -2,21 +2,28 @@ import 'package:analog_clock/analog_clock.dart';
 import 'package:attendance_app/models/attendance.dart';
 import 'package:attendance_app/models/finger_print.dart';
 import 'package:attendance_app/models/location_data.dart';
+import 'package:attendance_app/pages/Home/apply_leaves.dart';
+import 'package:attendance_app/pages/Home/cancel_leave.dart';
+import 'package:attendance_app/pages/Home/overview.dart';
+import 'package:attendance_app/pages/Home/profile.dart';
 import 'package:attendance_app/pages/Home/report.dart';
 import 'package:attendance_app/pages/authentication/log_in.dart';
 import 'package:attendance_app/service/attendence.dart';
 import 'package:attendance_app/service/auth_service.dart';
+import 'package:attendance_app/service/excel_service.dart';
 import 'package:attendance_app/service/location_servise.dart';
 import 'package:attendance_app/widgets/alerts.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:slidable_button/slidable_button.dart';
 import 'package:slide_digital_clock/slide_digital_clock.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as excel;
 import 'package:toggle_switch/toggle_switch.dart';
 
 class ClockPage extends StatefulWidget {
   static const routeName = "/clock";
-  const ClockPage({Key? key}) : super(key: key);
+  final String? status;
+  const ClockPage({Key? key, this.status}) : super(key: key);
 
   @override
   State<ClockPage> createState() => _ClockPageState();
@@ -34,6 +41,7 @@ class _ClockPageState extends State<ClockPage> {
   Attendance? attendance = Attendance();
   FingerPrint? fPrint = FingerPrint();
   final AttendanceService attendanceService = AttendanceService();
+  SlidableButtonPosition initPosition = SlidableButtonPosition.left;
 
   Future<bool?> getLocation() async {
     locationData2 = await determinePosition();
@@ -69,17 +77,36 @@ class _ClockPageState extends State<ClockPage> {
   String getDate() {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat("yyyy-MM-dd").format(now);
-    String finalDate = "$formattedDate 8:30:00.000";
+    String finalDate = formattedDate;
     return finalDate;
   }
 
   String? dateTime = DateFormat("EEE, MMM d").format(DateTime.now());
 
+  Future<void> getStat() async {
+    if (widget.status.toString() == "in") {
+      setSlideIndex(1);
+      setState(() {
+        initPosition = SlidableButtonPosition.right;
+      });
+    } else {
+      setSlideIndex(0);
+      setState(() {
+        initPosition = SlidableButtonPosition.left;
+      });
+    }
+  }
+
+  Future<void> getEmployee() async {
+    await getEmployeeData();
+  }
+
   @override
   void initState() {
     determinePosition();
     getLocation();
-
+    getStat();
+    getEmployee();
     super.initState();
   }
 
@@ -87,10 +114,70 @@ class _ClockPageState extends State<ClockPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(
+        excludeHeaderSemantics: true,
+        foregroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
+        elevation: 0.0,
+      ),
+      drawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            children: [
+              ListTile(
+                hoverColor: Colors.white,
+                trailing: const Icon(Icons.menu),
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.home_outlined),
+                title: const Text("Home"),
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.account_circle_outlined),
+                title: const Text("Profile"),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushNamed(Profile.routeName);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.list_alt_rounded),
+                title: const Text("Overview"),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushNamed(Overview.routeName);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.event_available_outlined),
+                title: const Text("Apply leaves"),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushNamed(ApplyLeaves.routeName);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.event_busy_outlined),
+                title: const Text("Cancel leaves"),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushNamed(CancelLeave.routeName);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Container(
           color: Colors.white,
-          padding: const EdgeInsets.only(top: 40, left: 10, right: 10),
+          padding: const EdgeInsets.only(top: 0, left: 10, right: 10),
           width: double.infinity,
           child: SingleChildScrollView(
             child: Column(
@@ -194,7 +281,7 @@ class _ClockPageState extends State<ClockPage> {
                               ),
                               const SizedBox(width: 20),
                               SlidableButton(
-                                initialPosition: SlidableButtonPosition.left,
+                                initialPosition: initPosition,
                                 width: MediaQuery.of(context).size.width / 4,
                                 buttonWidth: 35.0,
                                 color: const Color(0xffF0F5F8),
@@ -233,7 +320,8 @@ class _ClockPageState extends State<ClockPage> {
 
                                         attendance?.empNo = userData?.empNo;
                                         attendance?.fPrint = fPrint;
-                                        print(attendance?.toMap());
+                                        print(
+                                            "Attendence ${attendance?.toMap()}");
                                         attendanceService
                                             .attendance(attendance!, userToken)
                                             .then((value) {

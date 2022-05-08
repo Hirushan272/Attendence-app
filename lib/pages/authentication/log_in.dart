@@ -235,20 +235,30 @@ class _LogInState extends State<LogIn> {
                           passwordValidation(password);
                           if (usernameValidation(username)! &&
                               passwordValidation(password)!) {
-                            await logIn(username!, password!).then((value) {
-                              loadingOff();
-                              if (value == "ok") {
-                                if (userData?.roleId == 2) {
-                                  Navigator.of(context).pushReplacementNamed(
-                                      ClockPage.routeName);
-                                } else if (userData?.roleId == 3) {
-                                  Navigator.of(context).pushReplacementNamed(
-                                      EmployeePage.routeName);
-                                }
-                              } else {
-                                displayDialog(context, value.toString());
+                            String? value = await logIn(username!, password!);
+                            // .then((value) {
+                            if (value == "ok") {
+                              if (userData?.roleId == 2) {
+                                loadingOff();
+                                String? kk = await getStatus(userData?.empNo);
+                                Navigator.of(context)
+                                    .pushReplacement(MaterialPageRoute(
+                                        builder: (context) => ClockPage(
+                                              status: kk,
+                                            )));
+                              } else if (userData?.roleId == 3) {
+                                loadingOff();
+                                String? kk = await getStatus(userData?.empNo);
+                                Navigator.of(context)
+                                    .pushReplacement(MaterialPageRoute(
+                                        builder: (context) => EmployeePage(
+                                              status: kk,
+                                            )));
                               }
-                            });
+                            } else {
+                              displayDialog(context, value.toString());
+                            }
+                            // });
                           }
                         },
                         child: const Text("Log In")),
