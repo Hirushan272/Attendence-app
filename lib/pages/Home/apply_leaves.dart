@@ -7,6 +7,7 @@ import 'package:attendance_app/widgets/alerts.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
+import 'package:intl/intl.dart';
 
 import 'cancel_leave.dart';
 import 'clock.dart';
@@ -58,6 +59,13 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
   String? validate44;
   String? validate55;
 
+  DateTime? selectedDate1;
+  bool? isDateSelected1 = false;
+
+  DateTime? selectedDate2;
+  bool? isDateSelected2 = false;
+  DateTime selectedDateTest = DateTime.now();
+
   void setError1(Function(String?) validator, String? value) {
     setState(() {
       validate11 = validator(value);
@@ -86,6 +94,50 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
     setState(() {
       validate55 = validator(value);
     });
+  }
+
+  var outputFormat = DateFormat('yyyy-MM-dd');
+
+  _selectDate1(BuildContext context) async {
+    final DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: selectedDateTest,
+      firstDate: DateTime(2022),
+      lastDate: DateTime(2030),
+    );
+    print("APPLY DATE ${selected?.day}");
+    if (selected != null) {
+      setState(() {
+        isDateSelected1 = true;
+        selectedDate1 = selected;
+        selectedDateTest = selected;
+        applyDate = outputFormat.format(selected);
+        leaveModel.applyDate = outputFormat.format(selected);
+        print("APPLY DATE $applyDate");
+      });
+    }
+    print("SELECTET DATE 01 ${selectedDate1?.day}");
+  }
+
+  _selectDate2(BuildContext context) async {
+    final DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: selectedDateTest,
+      firstDate: DateTime(2022),
+      lastDate: DateTime(2030),
+    );
+    print("APPLY DATE ${selected?.day}");
+    if (selected != null) {
+      setState(() {
+        isDateSelected2 = true;
+        selectedDate2 = selected;
+        selectedDateTest = selected;
+        leaveDate = outputFormat.format(selected);
+        leaveModel.leaveDate = outputFormat.format(selected);
+        print("APPLY DATE $leaveDate");
+      });
+    }
+    print("SELECTET DATE 01 ${selectedDate2?.day}");
   }
 
   @override
@@ -161,252 +213,284 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
             padding: const EdgeInsets.only(left: 20, right: 20),
             child: Form(
               key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Apply Leaves",
-                    style: giantTextStyle,
-                  ),
-                  const SizedBox(height: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Leave type", style: textFiledTitleStyle),
-                      const SizedBox(height: 5),
-                      Container(
-                        decoration: decoratedBorder.copyWith(
-                            color: Colors.transparent,
-                            border: Border.all(
-                              color: Colors.blue,
-                              width: 1,
+              child: isLoading == true
+                  ? const Center(
+                      heightFactor: 14, child: CircularProgressIndicator())
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Apply Leaves",
+                          style: giantTextStyle,
+                        ),
+                        const SizedBox(height: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Leave type",
+                                style: textFiledTitleStyle),
+                            const SizedBox(height: 5),
+                            Container(
+                              decoration: decoratedBorder.copyWith(
+                                  color: Colors.transparent,
+                                  border: Border.all(
+                                    color: Colors.blue,
+                                    width: 1,
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10))),
+                              child: DropdownButtonFormField2(
+                                decoration: const InputDecoration(
+                                  enabled: false,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                                isExpanded: true,
+                                hint: const Text(
+                                  'Select leave type',
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.grey),
+                                ),
+                                icon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.black45,
+                                ),
+                                iconSize: 30,
+                                buttonHeight: 50,
+                                buttonPadding:
+                                    const EdgeInsets.only(left: 20, right: 10),
+                                dropdownDecoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                items: leaveTypes
+                                    .map((item) => DropdownMenuItem<String>(
+                                          value: item,
+                                          child: Text(
+                                            item.toString(),
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                                onChanged: (value) {
+                                  leaveType = value.toString();
+                                  leaveModel.leaveTypeId = leaveType;
+                                },
+                                onSaved: (String? value) {
+                                  leaveType = value;
+                                  leaveModel.leaveTypeId = leaveType;
+                                },
+                              ),
                             ),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10))),
-                        child: DropdownButtonFormField2(
-                          decoration: const InputDecoration(
-                            enabled: false,
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          isExpanded: true,
-                          hint: const Text(
-                            'Select leave type',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
-                          ),
-                          icon: const Icon(
-                            Icons.arrow_drop_down,
-                            color: Colors.black45,
-                          ),
-                          iconSize: 30,
-                          buttonHeight: 50,
-                          buttonPadding:
-                              const EdgeInsets.only(left: 20, right: 10),
-                          dropdownDecoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          items: leaveTypes
-                              .map((item) => DropdownMenuItem<String>(
-                                    value: item,
-                                    child: Text(
-                                      item.toString(),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                      ),
+                            validate11 == "null" ||
+                                    validate11 == "" ||
+                                    validate11 == null
+                                ? const SizedBox(height: 15)
+                                : Text(
+                                    validate11!,
+                                    style: errorTextStyle,
+                                  )
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Apply Date",
+                                style: textFiledTitleStyle),
+                            const SizedBox(height: 5),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: Container(
+                                decoration: decoratedBorder.copyWith(
+                                    color: Colors.transparent,
+                                    border: Border.all(
+                                      color: Colors.blue,
+                                      width: 1,
                                     ),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            leaveType = value.toString();
-                            leaveModel.leaveTypeId = leaveType;
-                          },
-                          onSaved: (String? value) {
-                            leaveType = value;
-                            leaveModel.leaveTypeId = leaveType;
-                          },
-                        ),
-                      ),
-                      validate11 == "null" ||
-                              validate11 == "" ||
-                              validate11 == null
-                          ? const SizedBox(height: 15)
-                          : Text(
-                              validate11!,
-                              style: errorTextStyle,
-                            )
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Apply Date", style: textFiledTitleStyle),
-                      const SizedBox(height: 5),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: Container(
-                          decoration: decoratedBorder.copyWith(
-                              color: Colors.transparent,
-                              border: Border.all(
-                                color: Colors.blue,
-                                width: 1,
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10))),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15, right: 5, top: 0),
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    style: const TextStyle(color: Colors.black),
+                                    decoration: inputDecoration.copyWith(
+                                        hintText: isDateSelected1!
+                                            ? "${selectedDate1?.day}/${selectedDate1?.month}/${selectedDate1?.year}"
+                                            : 'Today Date',
+                                        hintStyle: isDateSelected1!
+                                            ? const TextStyle(
+                                                color: Colors.black)
+                                            : const TextStyle(
+                                                color: Colors.grey)),
+                                    onTap: () {
+                                      _selectDate1(context);
+                                      print(
+                                          "SELECTET DATE 02 ${selectedDate1?.day}");
+                                    },
+                                    // onSaved: (value) {
+                                    //   applyDate = value;
+                                    //   leaveModel.applyDate = applyDate;
+                                    // },
+                                  ),
+                                ),
                               ),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10))),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 15, right: 5, top: 0),
-                            child: TextFormField(
-                              style: const TextStyle(color: Colors.black),
-                              decoration: inputDecoration.copyWith(
-                                  hintText: "DD/MM/YYYY (today date)",
-                                  hintStyle:
-                                      const TextStyle(color: Colors.grey)),
-                              onSaved: (value) {
-                                applyDate = value;
-                                leaveModel.applyDate = applyDate;
-                              },
                             ),
-                          ),
+                            validate22 == null
+                                ? const SizedBox(height: 15)
+                                : Text(
+                                    validate22!,
+                                    style: errorTextStyle,
+                                  )
+                          ],
                         ),
-                      ),
-                      validate22 == null
-                          ? const SizedBox(height: 15)
-                          : Text(
-                              validate22!,
-                              style: errorTextStyle,
-                            )
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Leave Date", style: textFiledTitleStyle),
-                      const SizedBox(height: 5),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: Container(
-                          decoration: decoratedBorder.copyWith(
-                              color: Colors.transparent,
-                              border: Border.all(
-                                color: Colors.blue,
-                                width: 1,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Leave Date",
+                                style: textFiledTitleStyle),
+                            const SizedBox(height: 5),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: Container(
+                                decoration: decoratedBorder.copyWith(
+                                    color: Colors.transparent,
+                                    border: Border.all(
+                                      color: Colors.blue,
+                                      width: 1,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10))),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15, right: 5, top: 0),
+                                  child: TextFormField(
+                                    readOnly: true,
+                                    style: const TextStyle(color: Colors.black),
+                                    decoration: inputDecoration.copyWith(
+                                        hintText: isDateSelected2!
+                                            ? "${selectedDate2?.day}/${selectedDate2?.month}/${selectedDate2?.year}"
+                                            : 'Today Date',
+                                        hintStyle: isDateSelected2!
+                                            ? const TextStyle(
+                                                color: Colors.black)
+                                            : const TextStyle(
+                                                color: Colors.grey)),
+                                    onTap: () {
+                                      _selectDate2(context);
+                                    },
+                                    //   onSaved: (value) {
+                                    //     leaveDate = value;
+                                    //     leaveModel.leaveDate = leaveDate;
+                                    //   },
+                                  ),
+                                ),
                               ),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10))),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 15, right: 5, top: 0),
-                            child: TextFormField(
-                              style: const TextStyle(color: Colors.black),
-                              decoration: inputDecoration.copyWith(
-                                  hintText: "DD/MM/YYYY",
-                                  hintStyle:
-                                      const TextStyle(color: Colors.grey)),
-                              onSaved: (value) {
-                                leaveDate = value;
-                                leaveModel.leaveDate = leaveDate;
-                              },
                             ),
-                          ),
+                            validate33 == null
+                                ? const SizedBox(height: 15)
+                                : Text(
+                                    validate33!,
+                                    style: errorTextStyle,
+                                  )
+                          ],
                         ),
-                      ),
-                      validate33 == null
-                          ? const SizedBox(height: 15)
-                          : Text(
-                              validate33!,
-                              style: errorTextStyle,
-                            )
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Remark", style: textFiledTitleStyle),
-                      const SizedBox(height: 5),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: Container(
-                          decoration: decoratedBorder.copyWith(
-                              color: Colors.transparent,
-                              border: Border.all(
-                                color: Colors.blue,
-                                width: 1,
+                        const SizedBox(height: 5),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Remark", style: textFiledTitleStyle),
+                            const SizedBox(height: 5),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: Container(
+                                decoration: decoratedBorder.copyWith(
+                                    color: Colors.transparent,
+                                    border: Border.all(
+                                      color: Colors.blue,
+                                      width: 1,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10))),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15, right: 5, top: 0),
+                                  child: TextFormField(
+                                    style: const TextStyle(color: Colors.black),
+                                    decoration: inputDecoration.copyWith(
+                                        hintStyle: const TextStyle(
+                                            color: Colors.grey)),
+                                    onSaved: (value) {
+                                      remark = value;
+                                      leaveModel.remark = remark;
+                                    },
+                                  ),
+                                ),
                               ),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10))),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 15, right: 5, top: 0),
-                            child: TextFormField(
-                              style: const TextStyle(color: Colors.black),
-                              decoration: inputDecoration.copyWith(
-                                  hintStyle:
-                                      const TextStyle(color: Colors.grey)),
-                              onSaved: (value) {
-                                remark = value;
-                                leaveModel.remark = remark;
-                              },
                             ),
-                          ),
+                            validate44 == null
+                                ? const SizedBox(height: 15)
+                                : Text(
+                                    validate44!,
+                                    style: errorTextStyle,
+                                  )
+                          ],
                         ),
-                      ),
-                      validate44 == null
-                          ? const SizedBox(height: 15)
-                          : Text(
-                              validate44!,
-                              style: errorTextStyle,
-                            )
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Leave Qty", style: textFiledTitleStyle),
-                      const SizedBox(height: 5),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: Container(
-                          decoration: decoratedBorder.copyWith(
-                              color: Colors.transparent,
-                              border: Border.all(
-                                color: Colors.blue,
-                                width: 1,
+                        const SizedBox(height: 5),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Leave Qty", style: textFiledTitleStyle),
+                            const SizedBox(height: 5),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: Container(
+                                decoration: decoratedBorder.copyWith(
+                                    color: Colors.transparent,
+                                    border: Border.all(
+                                      color: Colors.blue,
+                                      width: 1,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10))),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 15, right: 5, top: 0),
+                                  child: TextFormField(
+                                    style: const TextStyle(color: Colors.black),
+                                    decoration: inputDecoration.copyWith(
+                                        hintStyle: const TextStyle(
+                                            color: Colors.grey)),
+                                    onSaved: (value) {
+                                      leaveQty = value;
+                                      if (value?.trim() != "") {
+                                        try {
+                                          leaveModel.leaveQty =
+                                              int.parse(value!);
+                                        } catch (e) {}
+                                      }
+                                    },
+                                  ),
+                                ),
                               ),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10))),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 15, right: 5, top: 0),
-                            child: TextFormField(
-                              style: const TextStyle(color: Colors.black),
-                              decoration: inputDecoration.copyWith(
-                                  hintStyle:
-                                      const TextStyle(color: Colors.grey)),
-                              onSaved: (value) {
-                                leaveQty = value;
-                                leaveModel.leaveQty = value;
-                              },
                             ),
-                          ),
+                            validate55 == null
+                                ? const SizedBox(height: 15)
+                                : Text(
+                                    validate55!,
+                                    style: errorTextStyle,
+                                  )
+                          ],
                         ),
-                      ),
-                      validate55 == null
-                          ? const SizedBox(height: 15)
-                          : Text(
-                              validate55!,
-                              style: errorTextStyle,
-                            )
-                    ],
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              ),
+                        SizedBox(
+                          height: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
             ),
           ),
         ),
@@ -421,6 +505,7 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
                 style:
                     ElevatedButton.styleFrom(primary: const Color(0xff145486)),
                 onPressed: () async {
+                  // leaveService.getEmpLeaveData("emp3");
                   formKey.currentState?.save();
                   setError1(validator1, leaveType);
                   setError2(validator2, applyDate);
@@ -440,7 +525,7 @@ class _ApplyLeavesState extends State<ApplyLeaves> {
                       successDialog(context, responseModel.message);
                       loadingOff();
                     } else {
-                      successDialog(context, responseModel.message);
+                      warnDialog(context, responseModel.message.toString());
                       loadingOff();
                     }
                   }

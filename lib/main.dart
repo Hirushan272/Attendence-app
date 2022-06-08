@@ -7,7 +7,10 @@ import 'package:attendance_app/pages/Home/overview.dart';
 import 'package:attendance_app/pages/Home/profile.dart';
 import 'package:attendance_app/pages/Home/report_data.dart';
 import 'package:attendance_app/pages/authentication/log_in.dart';
+import 'package:attendance_app/pages/base/base_url.dart';
 import 'package:flutter/material.dart';
+
+import 'pages/authentication/initialize.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(),
-      initialRoute: LogIn.routeName,
+      initialRoute: Initializer.routeName,
       routes: {
         HomePage.routeName: (context) => const HomePage(),
         LogIn.routeName: (context) => const LogIn(),
@@ -33,6 +36,8 @@ class MyApp extends StatelessWidget {
         Overview.routeName: (context) => const Overview(),
         CancelLeave.routeName: (context) => const CancelLeave(),
         ApplyLeaves.routeName: (context) => const ApplyLeaves(),
+        BaseUrl.routeName: (context) => const BaseUrl(),
+        Initializer.routeName: (context) => const Initializer(),
       },
     );
   }

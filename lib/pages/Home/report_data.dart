@@ -215,11 +215,19 @@ class _ReportDataState extends State<ReportData> {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          Text(
-                            "${widget.monthlyReport?.workMinutesMonth}",
-                            style: const TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.bold),
-                          ),
+                          widget.monthlyReport?.workMinutesMonth != null
+                              ? Text(
+                                  "${widget.monthlyReport?.workMinutesMonth}",
+                                  style: const TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              : const Text(
+                                  "0",
+                                  style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold),
+                                ),
                         ],
                       ),
                     ],
@@ -241,11 +249,19 @@ class _ReportDataState extends State<ReportData> {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          Text(
-                            "${widget.monthlyReport?.leaveMinutesMonth}",
-                            style: const TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.bold),
-                          ),
+                          widget.monthlyReport?.leaveMinutesMonth != null
+                              ? Text(
+                                  "${widget.monthlyReport?.leaveMinutesMonth}",
+                                  style: const TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              : const Text(
+                                  "0",
+                                  style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold),
+                                ),
                         ],
                       ),
                     ],

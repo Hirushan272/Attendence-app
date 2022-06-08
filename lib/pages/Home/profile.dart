@@ -18,9 +18,29 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  bool? isLoading = false;
+
+  void loadingOn() {
+    setState(() {
+      isLoading = true;
+    });
+  }
+
+  void loadingOff() {
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> getEmployee() async {
+    loadingOn();
+    await getStatus(userData?.empNo);
+    loadingOff();
+  }
+
   @override
   void initState() {
-    // getEmployeeData();
+    getEmployee();
     super.initState();
   }
 
@@ -93,90 +113,106 @@ class _ProfileState extends State<Profile> {
         child: Padding(
           padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
           child: SizedBox(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 25),
-                  child: Row(
+            child: isLoading == true
+                ? const Center(
+                    heightFactor: 15,
+                    child: CircularProgressIndicator(),
+                  )
+                : Column(
                     children: [
-                      const CircleAvatar(
-                        backgroundColor: Colors.red,
-                        radius: 50,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 25),
+                        child: Row(
+                          children: [
+                            const CircleAvatar(
+                              backgroundColor: Colors.red,
+                              radius: 50,
+                            ),
+                            const SizedBox(width: 30),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "${employeeData!.title.toString()} ${employeeData?.fullName.toString()}",
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  "Status: $statusOfUser",
+                                  style: const TextStyle(
+                                      fontSize: 18, color: Colors.red),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(width: 30),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "${employeeData!.title.toString()} ${employeeData?.fullName.toString()}",
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            "Status: $statusOfUser",
-                            style: const TextStyle(
-                                fontSize: 18, color: Colors.red),
-                          ),
-                        ],
-                      ),
+                      const SizedBox(height: 30),
+                      if (employeeData?.nic.toString() != "null")
+                        profileItem("NIC", employeeData!.nic.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.mobile.toString() != "null")
+                        profileItem(
+                            "Contact No.", employeeData!.mobile.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.landLine.toString() != "null")
+                        profileItem(
+                            "Telephone", employeeData!.landLine.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.email.toString() != "null")
+                        profileItem("Email", employeeData!.email.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.addressR.toString() != "null")
+                        profileItem(
+                            "Address (R)", employeeData!.addressR.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.addressG.toString() != "null")
+                        profileItem(
+                            "Address (G)", employeeData!.addressG.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.civilStatus.toString() != "null")
+                        profileItem("Civil Status",
+                            employeeData!.civilStatus.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.dateOfBirth.toString() != "null")
+                        profileItem(
+                            "Date of Birth",
+                            employeeData!.dateOfBirth
+                                .toString()
+                                .substring(0, 10)),
+                      const SizedBox(height: 10),
+                      // if (employeeData?.dateOfBirth.toString() != "null")
+                      //   profileItem("Age", AgeCalculator.age().years.toString()),
+                      if (employeeData?.gender.toString() != "null")
+                        profileItem("Gender", employeeData!.gender.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.empNo.toString() != "null")
+                        profileItem(
+                            "Employee No.", employeeData!.empNo.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.ETFNo.toString() != "null")
+                        profileItem("ETF No.", employeeData!.ETFNo.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.EPFno.toString() != "null")
+                        profileItem("EPF No.", employeeData!.EPFno.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.enrollNo.toString() != "null")
+                        profileItem(
+                            "Enroll No.", employeeData!.enrollNo.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.branchId.toString() != "null")
+                        profileItem(
+                            "Branch", employeeData!.branchId.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.mealType.toString() != "null")
+                        profileItem(
+                            "Category", employeeData!.mealType.toString()),
+                      const SizedBox(height: 10),
+                      if (employeeData?.employeeType.toString() != "null")
+                        profileItem("Employee Type",
+                            employeeData!.employeeType.toString()),
                     ],
                   ),
-                ),
-                const SizedBox(height: 30),
-                if (employeeData?.nic.toString() != "null")
-                  profileItem("NIC", employeeData!.nic.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.mobile.toString() != "null")
-                  profileItem("Contact No.", employeeData!.mobile.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.landLine.toString() != "null")
-                  profileItem("Telephone", employeeData!.landLine.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.email.toString() != "null")
-                  profileItem("Email", employeeData!.email.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.addressR.toString() != "null")
-                  profileItem("Address (R)", employeeData!.addressR.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.addressG.toString() != "null")
-                  profileItem("Address (G)", employeeData!.addressG.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.civilStatus.toString() != "null")
-                  profileItem(
-                      "Civil Status", employeeData!.civilStatus.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.dateOfBirth.toString() != "null")
-                  profileItem("Date of Birth",
-                      employeeData!.dateOfBirth.toString().substring(0, 10)),
-                const SizedBox(height: 10),
-                // if (employeeData?.dateOfBirth.toString() != "null")
-                //   profileItem("Age", AgeCalculator.age().years.toString()),
-                if (employeeData?.gender.toString() != "null")
-                  profileItem("Gender", employeeData!.gender.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.empNo.toString() != "null")
-                  profileItem("Employee No.", employeeData!.empNo.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.ETFNo.toString() != "null")
-                  profileItem("ETF No.", employeeData!.ETFNo.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.EPFno.toString() != "null")
-                  profileItem("EPF No.", employeeData!.EPFno.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.enrollNo.toString() != "null")
-                  profileItem("Enroll No.", employeeData!.enrollNo.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.branchId.toString() != "null")
-                  profileItem("Branch", employeeData!.branchId.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.mealType.toString() != "null")
-                  profileItem("Category", employeeData!.mealType.toString()),
-                const SizedBox(height: 10),
-                if (employeeData?.employeeType.toString() != "null")
-                  profileItem(
-                      "Employee Type", employeeData!.employeeType.toString()),
-              ],
-            ),
           ),
         ),
       ),

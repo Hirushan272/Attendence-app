@@ -2,7 +2,9 @@ import 'package:attendance_app/constant/constant.dart';
 import 'package:attendance_app/pages/Home/clock.dart';
 import 'package:attendance_app/pages/Home/employee.dart';
 import 'package:attendance_app/pages/Home/home_page.dart';
+import 'package:attendance_app/pages/base/base_url.dart';
 import 'package:attendance_app/service/auth_service.dart';
+import 'package:attendance_app/service/key_service.dart';
 import 'package:attendance_app/widgets/alerts.dart';
 import 'package:flutter/material.dart';
 
@@ -26,6 +28,8 @@ class _LogInState extends State<LogIn> {
   bool? isPasswordNull = false;
   bool? isPasswordValidated = false;
 
+  final KeyService keyService = KeyService();
+  String? valueS;
   bool? usernameValidation(String? username) {
     if (username == "null" || username == null || username == "") {
       setState(() {
@@ -70,12 +74,32 @@ class _LogInState extends State<LogIn> {
     });
   }
 
+  void getData() async {
+    loadingOn();
+    valueS = await keyService.getValue();
+    loadingOff();
+  }
+
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(
+        excludeHeaderSemantics: false,
+        backgroundColor: const Color(0xff145486),
+        foregroundColor: Colors.black,
+        elevation: 0.0,
+        actions: [
+          GestureDetector(
+            child: const Icon(Icons.settings),
+            onTap: () {
+              Navigator.of(context).pushReplacementNamed(BaseUrl.routeName);
+            },
+          )
+        ],
+      ),
       resizeToAvoidBottomInset: false,
       body: Container(
         color: const Color(0xff145486),
@@ -238,7 +262,7 @@ class _LogInState extends State<LogIn> {
                             String? value = await logIn(username!, password!);
                             // .then((value) {
                             if (value == "ok") {
-                              if (userData?.roleId == 2) {
+                              if (userData?.roleId == 1) {
                                 loadingOff();
                                 String? kk = await getStatus(userData?.empNo);
                                 Navigator.of(context)
@@ -246,7 +270,7 @@ class _LogInState extends State<LogIn> {
                                         builder: (context) => ClockPage(
                                               status: kk,
                                             )));
-                              } else if (userData?.roleId == 3) {
+                              } else if (userData?.roleId == 2) {
                                 loadingOff();
                                 String? kk = await getStatus(userData?.empNo);
                                 Navigator.of(context)

@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:attendance_app/models/attendance.dart';
 import 'package:attendance_app/models/user.dart';
 import 'package:attendance_app/service/auth_service.dart';
+import 'package:attendance_app/service/leave.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+
+import 'key_service.dart';
 
 class AttendanceResponse {
   String? statusCode;
@@ -16,11 +19,11 @@ class AttendanceResponse {
 }
 
 class AttendanceService {
+  String? base = KeyService.baseUrl;
   Future<AttendanceResponse?> attendance(
       Attendance attendance, String? token) async {
-    var url =
-        Uri.parse("https://attendace-api.herokuapp.com/apiv1.0/attendance");
-
+    var url = Uri.parse("${base}apiv1.0/attendance");
+    print(base);
     AttendanceResponse res = AttendanceResponse();
     print(userToken);
     String? message;

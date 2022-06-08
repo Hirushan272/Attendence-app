@@ -2,16 +2,20 @@ import 'dart:convert' as convert;
 import 'dart:convert';
 import 'package:attendance_app/models/employee.dart';
 import 'package:attendance_app/models/user.dart';
+import 'package:attendance_app/service/leave.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+
+import 'key_service.dart';
 
 User? userData = User();
 Employee? employeeData = Employee();
 String? userToken;
 String? statusOfUser;
+String? base = KeyService.baseUrl;
 Future<String?> logIn(String username, String password) async {
-  var url =
-      Uri.parse('https://attendace-api.herokuapp.com/apiv1.0/users/login');
+  var url = Uri.parse(
+      'https://attendance-app-jxyi9.ondigitalocean.app/apiv1.0/users/login');
 
   String? message;
   var response = await http
@@ -65,8 +69,8 @@ Future<String?>? getStatus(String? empNo) async {
     "date": getDate(),
   };
 
-  var url2 = Uri.https(
-      "attendace-api.herokuapp.com", "/apiv1.0/employees/status", queryParams);
+  var url2 = Uri.https("attendance-app-jxyi9.ondigitalocean.app",
+      "/apiv1.0/employees/status", queryParams);
 
   var response = await http.get(
     url2,
@@ -86,14 +90,12 @@ Future<String?>? getStatus(String? empNo) async {
 }
 
 Future<void> logOut() async {
-  var url =
-      Uri.parse('https://attendace-api.herokuapp.com/apiv1.0/users/logout');
+  var url = Uri.parse('${base}apiv1.0/users/logout');
 }
 
 Future<void> getEmployeeData() async {
   String empNo = userData!.empNo.toString();
-  var url =
-      Uri.parse('https://attendace-api.herokuapp.com/apiv1.0/employees/$empNo');
+  var url = Uri.parse('${base}apiv1.0/employees/$empNo');
 
   var response = await http.get(
     url,
