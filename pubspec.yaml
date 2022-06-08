@@ -52,6 +52,7 @@ dependencies:
   permission_handler: ^9.2.0
   external_path: ^1.0.1
   form_validator: ^1.0.2
+  localstorage: ^4.0.0+1
 
 dev_dependencies:
   flutter_test:

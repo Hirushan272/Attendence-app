@@ -15,8 +15,13 @@ Widget itemCard(Size size, Color color, String type, String amount) {
             Text(type,
                 style: const TextStyle(fontSize: 20, color: Color(0xff145486))),
             SizedBox(height: size.width * 0.03),
-            Text(amount,
-                style: const TextStyle(fontSize: 50, color: Color(0xff145486))),
+            if (amount != "null")
+              Text(amount,
+                  style:
+                      const TextStyle(fontSize: 50, color: Color(0xff145486))),
+            if (amount == "null")
+              const Text("0",
+                  style: TextStyle(fontSize: 50, color: Color(0xff145486))),
           ],
         ),
       ),

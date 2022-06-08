@@ -1,5 +1,7 @@
 import 'package:attendance_app/constant/constant.dart';
+import 'package:attendance_app/models/leave.dart';
 import 'package:attendance_app/pages/Home/cancel_leave.dart';
+import 'package:attendance_app/service/leave.dart';
 import 'package:attendance_app/service/location_servise.dart';
 import 'package:attendance_app/widgets/small_button.dart';
 import 'package:flutter/material.dart';
@@ -138,7 +140,8 @@ successDialog(BuildContext context, String? message) async {
       });
 }
 
-cancelLeaveAlert(BuildContext context, String message, Size size) async {
+cancelLeaveAlert(BuildContext context, String message, Size size, Leave leave,
+    int index, Function updateL) async {
   return showDialog(
       barrierDismissible: false,
       context: context,
@@ -169,7 +172,15 @@ cancelLeaveAlert(BuildContext context, String message, Size size) async {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    smallButton(size, "Yes", blueColor, onClick: () {
+                    smallButton(size, "Yes", blueColor, onClick: () async {
+                      String? val =
+                          await leave.cancelLeaves(Leave.empLeaveList[index]);
+                      updateL(Leave.empLeaveList[index]);
+                      if (val == "ok") {
+                        successDialog(context, "Cancelled");
+                        Navigator.of(context).pop();
+                      }
+
                       Navigator.of(context).pop();
                     }),
                     smallButton(size, "No", redColor, onClick: () {

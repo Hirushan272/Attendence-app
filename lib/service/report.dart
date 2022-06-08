@@ -6,13 +6,16 @@ import 'package:attendance_app/models/attendance.dart';
 import 'package:attendance_app/models/user.dart';
 import 'package:attendance_app/pages/Home/report_data.dart';
 import 'package:attendance_app/service/auth_service.dart';
+import 'package:attendance_app/service/leave.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:attendance_app/models/report.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
+// "https://attendance-app-jxyi9.ondigitalocean.app/"
 
+MonthlyReport mtr = MonthlyReport();
 Future<MonthlyReport?> getReport(
   String? empNo,
   int? month,
@@ -26,9 +29,7 @@ Future<MonthlyReport?> getReport(
   }
 
   print("test 4");
-  MonthlyReport mtr = MonthlyReport();
-  var url1 = Uri.parse(
-      "https://attendace-api.herokuapp.com/apiv1.0/attendance/daily-summary");
+  var url1 = Uri.parse("${base}apiv1.0/attendance/daily-summary");
 
   final queryParams = {
     "emp_no": empNo.toString(),
@@ -37,7 +38,7 @@ Future<MonthlyReport?> getReport(
     "year": year.toString()
   };
 
-  var url2 = Uri.https("attendace-api.herokuapp.com",
+  var url2 = Uri.https("attendance-app-jxyi9.ondigitalocean.app",
       "/apiv1.0/attendance/monthly-summary", queryParams);
 
   print("PASSWORD $userToken");
@@ -82,6 +83,9 @@ Future<MonthlyReport?> getReport(
 
     mtr.workMinutesMonth = jsonResponse["workMinutesMonth"];
     mtr.leaveMinutesMonth = jsonResponse["leaveMinutesMonth"];
+    mtr.singleOtMinutes = jsonResponse["singleOt_minutesTotal"];
+    mtr.doubleOtMinutes = jsonResponse["doubleOt_minutesTotal"];
+    mtr.tripleOtMinutes = jsonResponse["tripleOt_minutesTotal"];
 
     return mtr;
   } else {
@@ -113,7 +117,7 @@ Future<LogData?>? getLog(String? empNo) async {
   LogData logData = LogData();
   List<LogModel> logList = [];
   var url = Uri.parse(
-    "https://attendace-api.herokuapp.com/apiv1.0/attendance/$empNo",
+    "${base}apiv1.0/attendance/$empNo",
   );
 
   http.Response response = await http.get(
@@ -127,8 +131,8 @@ Future<LogData?>? getLog(String? empNo) async {
   if (response.statusCode == 200) {
     var jsonResponse = convert.jsonDecode(response.body);
     print(jsonResponse);
-    logData.date = jsonResponse["date"].toString().substring(0, 10);
-    var data = jsonResponse["fprints"] as List<dynamic>;
+    logData.date = jsonResponse[0]["date"].toString().substring(0, 10);
+    var data = jsonResponse[0]["fprints"] as List<dynamic>;
     for (var e in data) {
       LogModel logModel = LogModel();
       logModel.status = e["direction"];
